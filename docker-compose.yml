@@ -22,6 +22,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/siemdb
       SPRING_DATASOURCE_USERNAME: siem
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SIEM_API_KEY: ${SIEM_API_KEY:?defina SIEM_API_KEY no .env}
     ports:
       - "8080:8080"
     restart: on-failure
