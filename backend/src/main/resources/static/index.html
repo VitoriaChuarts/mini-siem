@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mini-siem ✦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#12061d; --bg2:#2a0b3d;
+    --card:rgba(255,255,255,.06); --borda:rgba(255,255,255,.13); --trilho:rgba(255,255,255,.10);
+    --texto:#fdeef8; --mudo:#bfa3cf;
+    --rosa:#ff4fa3; --lilas:#b266ff;
+    --high:#ff5c8a; --medium:#ffb86b; --low:#6fe3c1;
+    --sombra:0 10px 40px rgba(0,0,0,.35);
+    --serif:'Playfair Display',Georgia,'Times New Roman',serif;
+    --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  :root[data-tema="claro"]{
+    --bg1:#fff4f9; --bg2:#ffe3f0;
+    --card:rgba(255,255,255,.72); --borda:rgba(224,54,138,.18); --trilho:rgba(224,54,138,.12);
+    --texto:#3a0f2e; --mudo:#9b6a88;
+    --rosa:#e0368a; --lilas:#9b4dff;
+    --high:#e0366a; --medium:#e08a1e; --low:#1fa383;
+    --sombra:0 10px 30px rgba(224,54,138,.12);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    min-height:100vh; font-family:var(--sans); color:var(--texto);
+    background:
+      radial-gradient(800px 480px at 90% -10%, rgba(255,79,163,.28), transparent 60%),
+      radial-gradient(700px 500px at -10% 20%, rgba(178,102,255,.25), transparent 60%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    background-attachment:fixed;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 16px 48px}
+  header{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:14px}
+  .tag{color:var(--mudo); letter-spacing:.18em; text-transform:uppercase; font-size:.72rem; margin-bottom:4px}
+  h1{
+    margin:0; font-family:var(--serif); font-style:italic; font-weight:500;
+    font-size:clamp(2.2rem,7vw,3.4rem); line-height:1.05;
+    background:linear-gradient(90deg,var(--rosa),var(--lilas));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .topo-dir{display:flex; gap:10px; flex-wrap:wrap}
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px;
+    background:var(--card); border:1px solid var(--borda); font-size:.8rem; color:var(--texto);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  }
+  button.pill{cursor:pointer; font-family:inherit}
+  button.pill:hover{border-color:var(--rosa)}
+  .pulso{width:8px; height:8px; border-radius:50%; background:var(--low); animation:pulse 2s infinite}
+  .pulso.off{background:var(--high); animation:none}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(111,227,193,.7)}
+    70%{box-shadow:0 0 0 8px rgba(111,227,193,0)}
+    100%{box-shadow:0 0 0 0 rgba(111,227,193,0)}
+  }
+  .card{
+    background:var(--card); border:1px solid var(--borda); border-radius:22px; padding:18px;
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); box-shadow:var(--sombra);
+  }
+  .grid4{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:22px 0 14px}
+  .stat .num{font-family:var(--serif); font-size:2.6rem; line-height:1.1}
+  .stat .rot{color:var(--mudo); font-size:.8rem; display:flex; align-items:center; gap:6px}
+  .dot{width:8px; height:8px; border-radius:50%; display:inline-block}
+  h2{font-family:var(--serif); font-weight:600; font-size:1.15rem; margin:0 0 12px}
+  h2 span{font-family:var(--sans); font-weight:400; font-size:.8rem; color:var(--mudo)}
+  h2.sec{margin:22px 4px 10px}
+  .dupla,.regras{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; margin:14px 0}
+  .regras{margin-top:0}
+  .regra .topo{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px}
+  .regra .id{font-family:var(--serif); font-style:italic; font-size:1.4rem; color:var(--rosa)}
+  .regra .qtd{font-size:.8rem; color:var(--mudo)}
+  .regra .qtd b{color:var(--texto); font-size:1.2rem}
+  .regra p{margin:0 0 10px; font-size:.85rem; color:var(--mudo)}
+  .mitre{display:inline-block; margin:0 6px 0 0; padding:3px 10px; border-radius:99px; font-size:.72rem; border:1px solid var(--lilas); color:var(--lilas)}
+  .barra{margin-bottom:12px}
+  .barra-topo{display:flex; justify-content:space-between; font-size:.85rem; margin-bottom:6px}
+  .mono{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+  .trilho{height:8px; background:var(--trilho); border-radius:99px; overflow:hidden}
+  .preench{height:100%; border-radius:99px; background:linear-gradient(90deg,var(--rosa),var(--lilas))}
+  .vazio{color:var(--mudo); font-size:.85rem; margin:0}
+  svg{width:100%; height:180px; display:block}
+  .eixo{display:flex; justify-content:space-between; font-size:.72rem; color:var(--mudo); margin-top:6px}
+  .filtros{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 6px}
+  .mini{color:var(--mudo); font-size:.78rem; margin:0 0 10px 4px}
+  select,input{
+    font:inherit; font-size:.85rem; color:var(--texto); background:var(--card);
+    border:1px solid var(--borda); border-radius:999px; padding:9px 14px; outline:none;
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  }
+  select option{color:#222}
+  input::placeholder{color:var(--mudo)}
+  select:focus,input:focus{border-color:var(--rosa)}
+  .tabela{overflow-x:auto}
+  table{width:100%; border-collapse:collapse; font-size:.85rem}
+  th{text-align:left; color:var(--mudo); font-weight:500; font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; padding:8px 10px}
+  td{padding:11px 10px; border-top:1px solid var(--borda); white-space:nowrap}
+  td.det{color:var(--mudo); max-width:320px; overflow:hidden; text-overflow:ellipsis}
+  tr.siem{background:rgba(255,79,163,.08)}
+  tr.siem td:first-child{box-shadow:inset 3px 0 0 var(--rosa)}
+  .chip{padding:3px 10px; border-radius:99px; font-size:.72rem; border:1px solid var(--borda)}
+  .sev{padding:3px 11px; border-radius:99px; font-size:.72rem; font-weight:600; color:#1a0a24}
+  .sev.high{background:var(--high)} .sev.medium{background:var(--medium)} .sev.low{background:var(--low)}
+  footer{text-align:center; color:var(--mudo); font-size:.75rem; margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="tag">security, but make it chic ✦</div>
+      <h1>mini-siem</h1>
+    </div>
+    <div class="topo-dir">
+      <span class="pill"><span class="pulso" id="pulso"></span><span id="status">conectando…</span></span>
+      <button class="pill" id="tema" type="button">☀ modo claro</button>
+    </div>
+  </header>
+
+  <section class="grid4">
+    <div class="card stat"><div class="num" id="total">0</div><div class="rot">total de alertas</div></div>
+    <div class="card stat"><div class="num" id="high">0</div><div class="rot"><span class="dot" style="background:var(--high)"></span>severidade alta</div></div>
+    <div class="card stat"><div class="num" id="medium">0</div><div class="rot"><span class="dot" style="background:var(--medium)"></span>severidade média</div></div>
+    <div class="card stat"><div class="num" id="low">0</div><div class="rot"><span class="dot" style="background:var(--low)"></span>severidade baixa</div></div>
+  </section>
+
+  <section class="card">
+    <h2>linha do tempo <span>· últimos 30 min</span></h2>
+    <svg viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="Alertas por minuto">
+      <defs>
+        <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ff4fa3" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#b266ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path id="area" fill="url(#grad)"/>
+      <path id="linha" fill="none" stroke="#ff4fa3" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="eixo"><span id="tIni"></span><span id="pico"></span><span id="tFim"></span></div>
+  </section>
+
+  <h2 class="sec">regras de correlação <span>· mapeadas para o mitre att&amp;ck</span></h2>
+  <section class="regras">
+    <div class="card regra">
+      <div class="topo"><span class="id">R001</span><span class="qtd">disparos: <b id="cntR001">0</b></span></div>
+      <p>mesmo ip no nids e no honeypot em 10 min: ataque multi-vetor</p>
+      <span class="mitre">T1046</span><span class="mitre">T1110</span>
+    </div>
+    <div class="card regra">
+      <div class="topo"><span class="id">R002</span><span class="qtd">disparos: <b id="cntR002">0</b></span></div>
+      <p>ip de site de phishing também atacou a rede em 10 min: infraestrutura em comum</p>
+      <span class="mitre">T1566</span><span class="mitre">T1583</span>
+    </div>
+  </section>
+
+  <section class="dupla">
+    <div class="card"><h2>top ips atacantes</h2><div id="topIps"></div></div>
+    <div class="card"><h2>alertas por fonte</h2><div id="porFonte"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>últimos alertas</h2>
+    <div class="filtros">
+      <select id="fSev">
+        <option value="">todas as severidades</option>
+        <option value="high">alta</option>
+        <option value="medium">média</option>
+        <option value="low">baixa</option>
+      </select>
+      <select id="fFonte">
+        <option value="">todas as fontes</option>
+        <option value="honeypot">honeypot</option>
+        <option value="nids">nids</option>
+        <option value="phishing">phishing</option>
+        <option value="siem">siem (correlação)</option>
+      </select>
+      <input id="fIp" placeholder="filtrar por ip">
+    </div>
+    <p class="mini" id="contagemTabela"></p>
+    <div class="tabela">
+      <table>
+        <thead><tr><th>hora</th><th>fonte</th><th>ip</th><th>evento</th><th>detalhes</th><th>severidade</th></tr></thead>
+        <tbody id="alertas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>feito com Java + Python · mini-siem ✦</footer>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // Dados vindos de atacantes NUNCA entram como HTML: só como texto (textContent)
+  function el(tag, cls, texto) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (texto !== undefined) e.textContent = texto;
+    return e;
+  }
+
+  let todosAlertas = [];
+
+  function listaBarras(container, itens) {
+    container.replaceChildren();
+    if (!itens.length) {
+      container.appendChild(el('p', 'vazio', 'nada por aqui ainda ✦'));
+      return;
+    }
+    const max = Math.max(...itens.map(i => i.total));
+    itens.forEach(i => {
+      const topo = el('div', 'barra-topo');
+      topo.append(el('span', 'mono', i.chave), el('b', null, String(i.total)));
+      const preench = el('div', 'preench');
+      preench.style.width = Math.max(6, (i.total / max) * 100) + '%';
+      const trilho = el('div', 'trilho');
+      trilho.appendChild(preench);
+      const barra = el('div', 'barra');
+      barra.append(topo, trilho);
+      container.appendChild(barra);
+    });
+  }
+
+  function desenharGrafico(alertas) {
+    const MIN = 30, W = 600, H = 170, PAD = 8;
+    const agora = new Date(); agora.setSeconds(0, 0);
+    const inicio = agora.getTime() - (MIN - 1) * 60000;
+    const contagem = new Array(MIN).fill(0);
+    alertas.forEach(a => {
+      const idx = Math.floor((new Date(a.timestamp).getTime() - inicio) / 60000);
+      if (idx >= 0 && idx < MIN) contagem[idx]++;
+    });
+    const max = Math.max(1, ...contagem);
+    const x = (i) => PAD + (i / (MIN - 1)) * (W - 2 * PAD);
+    const y = (v) => H - PAD - (v / max) * (H - 2 * PAD - 12);
+    const linha = contagem
+      .map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1))
+      .join(' ');
+    $('linha').setAttribute('d', linha);
+    $('area').setAttribute('d', linha + ' L' + x(MIN - 1) + ' ' + (H - PAD) + ' L' + x(0) + ' ' + (H - PAD) + ' Z');
+    const hm = { hour: '2-digit', minute: '2-digit' };
+    $('tIni').textContent = new Date(inicio).toLocaleTimeString([], hm);
+    $('tFim').textContent = agora.toLocaleTimeString([], hm);
+    $('pico').textContent = 'pico: ' + max + ' por minuto';
+  }
+
+  function filtrar() {
+    const sev = $('fSev').value, fonte = $('fFonte').value, ip = $('fIp').value.trim();
+    return todosAlertas.filter(a =>
+      (!sev || a.severity === sev) &&
+      (!fonte || a.source === fonte) &&
+      (!ip || String(a.srcIp).includes(ip)));
+  }
+
+  // Resume o campo "details" (JSON guardado como texto) de acordo com a fonte do alerta
+  function detalhesTexto(a) {
+    let d;
+    try { d = JSON.parse(a.details || '{}') || {}; } catch (e) { return '—'; }
+    const corta = (s, n) => { s = String(s); return s.length > n ? s.slice(0, n) + '…' : s; };
+
+    if (a.source === 'siem') {
+      const mitre = Array.isArray(d.mitre) ? d.mitre.join(' ') : '';
+      return [d.rule, mitre].filter(Boolean).join(' · ') || '—';
+    }
+    if (a.source === 'honeypot' && d.user !== undefined) {
+      return corta(d.user, 20) + ' / ' + corta(d.password ?? '', 24);
+    }
+    if (a.eventType === 'port_scan' && d.ports !== undefined) return d.ports + ' portas';
+    if (a.eventType === 'syn_flood' && d.syn_packets !== undefined) return d.syn_packets + ' pacotes SYN';
+    if (a.source === 'phishing' && d.url) {
+      return corta(d.url, 40) + (d.score !== undefined ? ' · score ' + d.score : '');
+    }
+    return '—';
+  }
+
+  function desenharTabela() {
+    const filtrados = filtrar();
+    const mostrados = filtrados.slice(0, 20);
+    $('contagemTabela').textContent = 'mostrando ' + mostrados.length + ' de ' + filtrados.length;
+
+    const linhas = mostrados.map(a => {
+      const tr = el('tr', a.source === 'siem' ? 'siem' : '');
+      const td = (t) => { const c = el('td', null, t); tr.appendChild(c); return c; };
+      td(new Date(a.timestamp).toLocaleTimeString());
+      td('').appendChild(el('span', 'chip', a.source));
+      td(String(a.srcIp)).className = 'mono';
+      td((a.source === 'siem' ? '✦ ' : '') + a.eventType);
+      td(detalhesTexto(a)).className = 'det mono';
+      const nivel = ['high', 'medium', 'low'].includes(a.severity) ? a.severity : '';
+      td('').appendChild(el('span', 'sev ' + nivel, a.severity));
+      return tr;
+    });
+    if (!linhas.length) {
+      const tr = el('tr');
+      const c = el('td', 'vazio', 'nenhum alerta com esses filtros ✦');
+      c.colSpan = 6;
+      tr.appendChild(c);
+      linhas.push(tr);
+    }
+    $('alertas').replaceChildren(...linhas);
+  }
+
+  async function atualizar() {
+    try {
+      const pegar = (url) => fetch(url).then(r => { if (!r.ok) throw new Error(url); return r.json(); });
+      const [stats, alertas] = await Promise.all([pegar('/api/stats'), pegar('/api/alerts')]);
+
+      $('total').textContent = stats.total;
+      const sev = Object.fromEntries(stats.porSeveridade.map(c => [c.chave, c.total]));
+      $('high').textContent = sev.high ?? 0;
+      $('medium').textContent = sev.medium ?? 0;
+      $('low').textContent = sev.low ?? 0;
+
+      listaBarras($('topIps'), stats.topIps);
+      listaBarras($('porFonte'), stats.porFonte);
+
+      const disparos = (evento) => alertas.filter(a => a.source === 'siem' && a.eventType === evento).length;
+      $('cntR001').textContent = disparos('multi_vector_attack');
+      $('cntR002').textContent = disparos('infrastructure_overlap');
+
+      todosAlertas = alertas;
+      desenharGrafico(alertas);
+      desenharTabela();
+
+      $('pulso').classList.remove('off');
+      $('status').textContent = 'ao vivo · ' + new Date().toLocaleTimeString();
+    } catch (e) {
+      $('pulso').classList.add('off');
+      $('status').textContent = 'sem conexão com a api';
+    }
+  }
+
+  function aplicarTema(t) {
+    document.documentElement.dataset.tema = t;
+    $('tema').textContent = t === 'claro' ? '☾ modo escuro' : '☀ modo claro';
+    try { localStorage.setItem('tema', t); } catch (e) {}
+  }
+  let temaSalvo = 'escuro';
+  try { temaSalvo = localStorage.getItem('tema') || 'escuro'; } catch (e) {}
+  aplicarTema(temaSalvo);
+  $('tema').addEventListener('click', () =>
+    aplicarTema(document.documentElement.dataset.tema === 'claro' ? 'escuro' : 'claro'));
+
+  ['fSev', 'fFonte'].forEach(id => $(id).addEventListener('change', desenharTabela));
+  $('fIp').addEventListener('input', desenharTabela);
+
+  atualizar();
+  setInterval(atualizar, 5000);
+</script>
+</body>
+</html>
